@@ -1,14 +1,12 @@
 # binance_api
 
-A new Flutter package project.
+A library to easily access Binance spot and Binance futures APIs.
+
+Without API KEY and API SECRET , all functions relative to user data or trading won't work.
+You also need to give the API key the proper authorizations, according to what you want to do with it (margin, futures, spot or read-only).
 
 ## Getting Started
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+Import with ```import 'binance_api/binance_api.dart';```
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Then create an instance of BinanceAPI class (with or without api keys) and use members functions of instance.spot and instance.futures as you please.
