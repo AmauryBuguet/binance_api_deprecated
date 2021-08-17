@@ -1,3 +1,5 @@
+import 'common_enums.dart';
+
 class MakerOrder {
   final double price;
   final double quantity;
@@ -63,7 +65,7 @@ class AggregatedTrade {
 }
 
 class Kline {
-  final DateTime openTime;
+  final int openTime;
   final double open;
   final double high;
   final double low;
@@ -77,7 +79,7 @@ class Kline {
   final double takerQuote;
 
   Kline.fromList(List c)
-      : this.openTime = DateTime.fromMillisecondsSinceEpoch(c.first),
+      : this.openTime = c.first,
         this.open = double.parse(c[1]),
         this.high = double.parse(c[2]),
         this.low = double.parse(c[3]),
@@ -88,4 +90,102 @@ class Kline {
         this.tradesCount = c[8],
         this.takerBase = double.parse(c[9]),
         this.takerQuote = double.parse(c[10]);
+}
+
+////////////////////////////// WEBSOCKET CLASSES //////////////////////////////
+
+class WsAggregatedTrade extends AggregatedTrade {
+  final String eventType;
+  final int eventTime;
+  final String symbol;
+
+  WsAggregatedTrade.fromMap(Map m)
+      : this.eventType = m['e'],
+        this.eventTime = m['E'],
+        this.symbol = m['s'],
+        super.fromMap(m);
+}
+
+class WsKline {
+  final int startTime;
+  final int closeTime;
+  final String symbol;
+  final Interval interval;
+  final int firstTradeId;
+  final int lastTradeId;
+  final double open;
+  final double high;
+  final double close;
+  final double low;
+  final double baseAssetVolume;
+  final int tradeCount;
+  final bool isClosed;
+  final double quoteAssetVolume;
+  final double takerBuyBaseAssetVolume;
+  final double takerBuyQuoteAssetVolume;
+
+  WsKline.fromMap(Map m)
+      : this.startTime = m['t'],
+        this.closeTime = m['T'],
+        this.symbol = m['s'],
+        this.interval = intervalFromStr[m['i']],
+        this.firstTradeId = m['f'],
+        this.lastTradeId = m['L'],
+        this.open = double.parse(m['o']),
+        this.high = double.parse(m['h']),
+        this.close = double.parse(m['c']),
+        this.low = double.parse(m['l']),
+        this.baseAssetVolume = double.parse(m['v']),
+        this.tradeCount = m['n'],
+        this.isClosed = m['x'],
+        this.quoteAssetVolume = double.parse(m['q']),
+        this.takerBuyBaseAssetVolume = double.parse(m['V']),
+        this.takerBuyQuoteAssetVolume = double.parse(m['Q']);
+}
+
+class WsKlineEvent {
+  final String eventType;
+  final int eventTime;
+  final String symbol;
+  final WsKline kline;
+
+  WsKlineEvent.fromMap(Map m)
+      : this.eventType = m['e'],
+        this.eventTime = m['E'],
+        this.symbol = m['s'],
+        this.kline = WsKline.fromMap(m["k"]);
+}
+
+class WsMiniTicker {
+  final String eventType;
+  final int eventTime;
+  final String symbol;
+  final double close;
+  final double open;
+  final double high;
+  final double low;
+  final double baseAssetVolume;
+  final double quoteAssetVolume;
+
+  WsMiniTicker.fromMap(Map m)
+      : this.eventType = m['e'],
+        this.eventTime = m['E'],
+        this.symbol = m['s'],
+        this.close = double.parse(m['c']),
+        this.open = double.parse(m['o']),
+        this.high = double.parse(m['h']),
+        this.low = double.parse(m['l']),
+        this.baseAssetVolume = double.parse(m['v']),
+        this.quoteAssetVolume = double.parse(m['q']);
+}
+
+class WsUserDataEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final Map data;
+
+  WsUserDataEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.data = m;
 }

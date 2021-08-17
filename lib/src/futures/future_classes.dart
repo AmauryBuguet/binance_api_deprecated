@@ -1,4 +1,3 @@
-import '../commons/binance_common.dart';
 import '../commons/common_enums.dart';
 
 import 'futures_enums.dart';
@@ -460,8 +459,7 @@ class TradeF {
 class Income {
   final String symbol;
   final IncomeType incomeType;
-  final String income;
-  // final double income;
+  final double income;
   final String asset;
   final String info;
   final int time;
@@ -471,11 +469,100 @@ class Income {
   Income.fromMap(Map m)
       : this.symbol = m['symbol'],
         this.incomeType = incomeTypeFromStr[m['incomeType']],
-        // this.income = double.parse(m['income']),
-        this.income = m['income'],
+        this.income = double.parse(m['income']),
         this.asset = m['asset'],
         this.info = m['info'],
         this.time = m['time'],
         this.tranId = m['tranId'],
         this.tradeId = int.tryParse(m['tradeId']) ?? 0;
+}
+
+class MarginCallPosition {
+  final double symbol;
+  final PositionSide positionSide;
+  final double positionAmount;
+  final String marginType;
+  final double isolatedWallet;
+  final double markPrice;
+  final double unrealizedPnL;
+  final double maintenanceMarginRequired;
+
+  MarginCallPosition.fromMap(Map m)
+      : this.symbol = double.parse(m['s']),
+        this.positionSide = positionSideFromStr[m['ps']],
+        this.positionAmount = double.parse(m['pa']),
+        this.marginType = m['mt'],
+        this.isolatedWallet = double.parse(m['iw']),
+        this.markPrice = double.parse(m['mp']),
+        this.unrealizedPnL = double.parse(m['up']),
+        this.maintenanceMarginRequired = double.parse(m['mm']);
+}
+
+class WsMarginCallEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final double crossWalletBalance;
+  List<MarginCallPosition> positions;
+
+  WsMarginCallEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.crossWalletBalance = double.parse(m['u']),
+        this.positions = List<MarginCallPosition>.from(m['p'].map((b) => MarginCallPosition.fromMap(b)));
+}
+
+class WsBalance {
+  String asset;
+  double balance;
+  double crossWalletBalance;
+
+  WsBalance.fromMap(Map m)
+      : this.asset = m["a"],
+        this.balance = double.parse(m["wb"]),
+        this.crossWalletBalance = double.parse(m["cw"]);
+}
+
+class WsPosition {
+  final String symbol;
+  final double positionAmount;
+  final double entryPrice;
+  final double accumulatedRealized;
+  final double unrealizedPnL;
+  final String marginType;
+  final double isolatedWallet;
+  final PositionSide positionSide;
+
+  WsPosition.fromMap(Map m)
+      : this.symbol = m["s"],
+        this.positionAmount = double.parse(m["pa"]),
+        this.entryPrice = double.parse(m["ep"]),
+        this.accumulatedRealized = double.parse(m["cr"]),
+        this.unrealizedPnL = double.parse(m["up"]),
+        this.marginType = m["mt"],
+        this.isolatedWallet = double.parse(m["iw"]),
+        this.positionSide = positionSideFromStr[m["ps"]];
+}
+
+class WsAccountUpdateData {
+  final String eventReasonType;
+  final List<WsBalance> balances;
+  final List<WsPosition> positions;
+
+  WsAccountUpdateData.fromMap(Map m)
+      : this.eventReasonType = m["m"],
+        this.balances = m.containsKey("B") ? List<WsBalance>.from(m["B"].map((e) => WsBalance.fromMap(e))) : [],
+        this.positions = m.containsKey("P") ? List<WsPosition>.from(m["P"].map((e) => WsPosition.fromMap(e))) : [];
+}
+
+class WsFuturesAccountUpdateEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final int transactionTime;
+  final WsAccountUpdateData data;
+
+  WsFuturesAccountUpdateEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.transactionTime = m['T'],
+        this.data = WsAccountUpdateData.fromMap(m['a']);
 }

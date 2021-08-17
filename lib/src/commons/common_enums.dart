@@ -172,6 +172,30 @@ Map<String, RateLimitInterval> rateLimitIntervalFromStr = {
   "DAY": RateLimitInterval.DAY,
 };
 
+enum WsUserEventType {
+  OUTBOUND_ACCOUNT_POSITION,
+  BALANCE_UPDATE,
+  EXECUTION_REPORT,
+  LIST_STATUS,
+  LISTEN_KEY_EXPIRED,
+  MARGIN_CALL,
+  ACCOUNT_UPDATE,
+  ORDER_TRADE_UPDATE,
+  ACCOUNT_CONFIG_UPDATE,
+}
+
+Map<String, WsUserEventType> wsEventTypeFromStr = {
+  "outboundAccountPosition": WsUserEventType.OUTBOUND_ACCOUNT_POSITION,
+  "balanceUpdate": WsUserEventType.BALANCE_UPDATE,
+  "executionReport": WsUserEventType.EXECUTION_REPORT,
+  "listStatus": WsUserEventType.LIST_STATUS,
+  "listenKeyExpired": WsUserEventType.LISTEN_KEY_EXPIRED,
+  "MARGIN_CALL": WsUserEventType.MARGIN_CALL,
+  "ACCOUNT_UPDATE": WsUserEventType.ACCOUNT_UPDATE,
+  "ORDER_TRADE_UPDATE": WsUserEventType.ORDER_TRADE_UPDATE,
+  "ACCOUNT_CONFIG_UPDATE": WsUserEventType.ACCOUNT_CONFIG_UPDATE,
+};
+
 enum SecurityType {
   NONE,
   TRADE,

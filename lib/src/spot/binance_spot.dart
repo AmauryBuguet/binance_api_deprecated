@@ -11,6 +11,7 @@ class BinanceSpot extends Binance {
     String apiKey = "",
   }) : super(
           endpoint: 'api.binance.com',
+          wsEndpoint: 'wss://stream.binance.com:9443',
           prefix: 'api/v3',
           apiKey: apiKey,
           apiSecret: apiSecret,
@@ -150,19 +151,59 @@ class BinanceSpot extends Binance {
       print(a);
     }
     return snap;
-    // return sendRequest(
-    //   path: 'sapi/v1/accountSnapshot',
-    //   securityType: SecurityType.USER_DATA,
-    //   type: RequestType.GET,
-    //   timestampNeeded: true,
-    //   params: params,
-    //   // ).then((m) => AccountSnapshot.fromMap(m));
-    // ).then<AccountSnapshot>((m) => AccountSnapshot.fromMap(m)).catchError(
-    //   (err) {
-    //     print(m);
-    //     return "${err.code} : ${err.message}";
-    //   },
-    //   test: (e) => e is BinanceApiException,
-    // );
+  }
+
+  Future<String> getListenKey() async {
+    return sendRequest(
+      path: 'api/v3/userDataStream',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.POST,
+      timestampNeeded: false,
+      params: {},
+    ).then((m) => m['listenKey']);
+  }
+
+  void pingListenKey({@required String listenkey}) {
+    Map<String, String> params = {'listenkey': listenkey};
+    sendRequest(
+      path: 'api/v3/userDataStream',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.PUT,
+      timestampNeeded: false,
+      params: params,
+    );
+  }
+
+  void deleteListenKey({@required String listenkey}) {
+    Map<String, String> params = {'listenkey': listenkey};
+    sendRequest(
+      path: 'api/v3/userDataStream',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.DELETE,
+      timestampNeeded: false,
+      params: params,
+    );
+  }
+
+  Future<CryptoDepositHistory> deposityHistory({
+    String asset,
+    int status,
+    int startTime,
+    int endTime,
+    int recvWindow,
+  }) async {
+    Map<String, String> params = {};
+    if (asset != null) params['asset'] = asset;
+    if (status != null) params['status'] = status.toString();
+    if (startTime != null) params['startTime'] = startTime.toString();
+    if (endTime != null) params['endTime'] = endTime.toString();
+    if (recvWindow != null) params['recvWindow'] = recvWindow.toString();
+    return sendRequest(
+      path: 'wapi/v3/depositHistory.html',
+      securityType: SecurityType.USER_DATA,
+      type: RequestType.GET,
+      timestampNeeded: true,
+      params: params,
+    ).then((m) => CryptoDepositHistory.fromMap(m));
   }
 }

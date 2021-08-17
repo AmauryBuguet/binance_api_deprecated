@@ -190,3 +190,160 @@ class AccountSnapshot {
         this.msg = m['msg'],
         this.snapshotVos = List<SnapshotVos>.from(m['snapshotVos'].map((e) => SnapshotVos.fromMap(e)));
 }
+
+class CryptoDeposit {
+  final int insertTime;
+  final double amount;
+  final String asset;
+  final String address;
+  final String addressTag;
+  final String txId;
+  final int status;
+
+  CryptoDeposit.fromMap(Map m)
+      : this.insertTime = m['insertTime'],
+        this.amount = m['amount'],
+        this.asset = m['asset'],
+        this.address = m['address'],
+        this.addressTag = m.containsKey('addressTag') ? m['addressTag'] : "",
+        this.txId = m['txId'],
+        this.status = m['status'];
+}
+
+class CryptoDepositHistory {
+  final List<CryptoDeposit> depositList;
+  final bool success;
+
+  CryptoDepositHistory.fromMap(Map m)
+      : this.depositList = List<CryptoDeposit>.from(m['depositList'].map((e) => CryptoDeposit.fromMap(e))),
+        this.success = m['success'];
+}
+
+class WsSpotAccountUpdateEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final int lastUpdateTime;
+  List<Balance> balances;
+
+  WsSpotAccountUpdateEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.lastUpdateTime = m['u'],
+        this.balances = List<Balance>.from(m['B'].map((b) => Balance.fromMap(b)));
+}
+
+class WsBalanceUpdateEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final String asset;
+  final double balanceDelta;
+  final int clearTime;
+
+  WsBalanceUpdateEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.asset = m['a'],
+        this.balanceDelta = double.parse(m['d']),
+        this.clearTime = m['T'];
+}
+
+class WsOrderUpdateEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final String symbol;
+  final String clientOrderId;
+  final OrderSide side;
+  final OrderType orderType;
+  final TimeInForce timeInForce;
+  final double quantity;
+  final double price;
+  final double stopPrice;
+  final double icebergQty;
+  final int orderListId;
+  final String origClientOrderId;
+  final String executionType;
+  final OrderStatus orderStatus;
+  final String rejectReason;
+  final int orderId;
+  final double lastExecutedQuantity;
+  final double cumulativeFilledQuantity;
+  final double lastExecutedPrice;
+  final double commissionAmount;
+  final String commissionAsset;
+  final int transactionTime;
+  final int tradeId;
+  final bool isOnTheBook;
+  final bool isMaker;
+  final int creationTime;
+  final double cumulativeQuoteAssetTransactedQuantity;
+  final double lastQuoteAssetTransactedQuantity;
+  final double quoteOrderQty;
+
+  WsOrderUpdateEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.symbol = m['s'],
+        this.clientOrderId = m['c'],
+        this.side = orderSideFromStr[m['S']],
+        this.orderType = orderTypeFromStr[m['o']],
+        this.timeInForce = timeInForceFromStr[m['f']],
+        this.quantity = double.parse(m['q']),
+        this.price = double.parse(m['p']),
+        this.stopPrice = double.parse(m['P']),
+        this.icebergQty = double.parse(m['F']),
+        this.orderListId = m['g'],
+        this.origClientOrderId = m['C'],
+        this.executionType = m['x'],
+        this.orderStatus = orderStatusFromStr[m['X']],
+        this.rejectReason = m['r'],
+        this.orderId = m['i'],
+        this.lastExecutedQuantity = double.parse(m['l']),
+        this.cumulativeFilledQuantity = double.parse(m['z']),
+        this.lastExecutedPrice = double.parse(m['L']),
+        this.commissionAmount = double.parse(m['n']),
+        this.commissionAsset = m['N'],
+        this.transactionTime = m['T'],
+        this.tradeId = m['t'],
+        this.isOnTheBook = m['w'],
+        this.isMaker = m['m'],
+        this.creationTime = m['O'],
+        this.cumulativeQuoteAssetTransactedQuantity = double.parse(m['Z']),
+        this.lastQuoteAssetTransactedQuantity = double.parse(m['Y']),
+        this.quoteOrderQty = double.parse(m['Q']);
+}
+
+class OcoOrder {
+  final String symbol;
+  final int orderId;
+  final String clientOrderId;
+
+  OcoOrder.fromMap(Map m)
+      : this.symbol = m['s'],
+        this.orderId = m['i'],
+        this.clientOrderId = m['c'];
+}
+
+class WsListStatusEvent {
+  final WsUserEventType eventType;
+  final int eventTime;
+  final String symbol;
+  final int orderListId;
+  final String contingencyType;
+  final String listStatusType;
+  final String listOrderStatus;
+  final String listRejectReason;
+  final String listClientOrderId;
+  final int transactionTime;
+
+  WsListStatusEvent.fromMap(Map m)
+      : this.eventType = wsEventTypeFromStr[m['e']],
+        this.eventTime = m['E'],
+        this.symbol = m['s'],
+        this.orderListId = m['g'],
+        this.contingencyType = m['c'],
+        this.listStatusType = m['l'],
+        this.listOrderStatus = m['L'],
+        this.listRejectReason = m['r'],
+        this.listClientOrderId = m['C'],
+        this.transactionTime = m['T'];
+}

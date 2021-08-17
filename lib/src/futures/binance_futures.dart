@@ -14,6 +14,7 @@ class BinanceFutures extends Binance {
     String apiKey = "",
   }) : super(
           endpoint: 'fapi.binance.com',
+          wsEndpoint: 'wss://fstream.binance.com',
           prefix: 'fapi/v1',
           apiKey: apiKey,
           apiSecret: apiSecret,
@@ -522,5 +523,35 @@ class BinanceFutures extends Binance {
       timestampNeeded: true,
       params: params,
     ).then((m) => List<Income>.from(m.map((i) => Income.fromMap(i))));
+  }
+
+  Future<String> getListenKey() async {
+    return sendRequest(
+      path: 'fapi/v1/listenKey',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.POST,
+      timestampNeeded: false,
+      params: {},
+    ).then((m) => m['listenKey']);
+  }
+
+  void pingListenKey() {
+    sendRequest(
+      path: 'fapi/v1/listenKey',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.PUT,
+      timestampNeeded: false,
+      params: {},
+    );
+  }
+
+  void deleteListenKey() {
+    sendRequest(
+      path: 'fapi/v1/listenKey',
+      securityType: SecurityType.USER_STREAM,
+      type: RequestType.DELETE,
+      timestampNeeded: false,
+      params: {},
+    );
   }
 }

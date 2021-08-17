@@ -5,6 +5,7 @@ import 'package:convert/convert.dart';
 import 'package:flutter/material.dart' hide Interval;
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
+import 'package:web_socket_channel/io.dart';
 
 import 'common_classes.dart';
 import 'common_enums.dart';
@@ -12,12 +13,20 @@ import 'exceptions.dart';
 
 abstract class Binance {
   final String endpoint;
+  final String wsEndpoint;
   final String prefix;
   String apiKey;
   String apiSecret;
 
-  Binance({@required this.endpoint, @required this.prefix, this.apiKey = "", this.apiSecret = ""});
+  Binance({
+    @required this.endpoint,
+    @required this.wsEndpoint,
+    @required this.prefix,
+    this.apiKey = "",
+    this.apiSecret = "",
+  });
 
+  /////////////////////////////// REST API ///////////////////////////////
   Future<dynamic> sendRequest({
     @required String path,
     @required SecurityType securityType,
@@ -78,7 +87,6 @@ abstract class Binance {
         throw BinanceApiException(result["msg"], result["code"]);
       }
     }
-    print("is oke");
 
     return result;
   }
@@ -169,5 +177,35 @@ abstract class Binance {
       type: RequestType.GET,
       params: params,
     ).then((r) => List<Kline>.from(r.map((t) => Kline.fromList(t))));
+  }
+
+  //////////////////////////// WEBSOCKETS API ////////////////////////////
+  IOWebSocketChannel subscribe(String channel) => IOWebSocketChannel.connect(
+        '$wsEndpoint/ws/$channel',
+        pingInterval: Duration(minutes: 5),
+      );
+
+  Map toMap(json) => convert.jsonDecode(json);
+  List<Map> toList(json) => List<Map>.from(convert.jsonDecode(json));
+
+  Stream<WsAggregatedTrade> aggregatedTrade({@required String symbol}) {
+    final channel = subscribe('${symbol.toLowerCase()}@aggTrade');
+
+    return channel.stream.map<Map>(toMap).map<WsAggregatedTrade>((e) => WsAggregatedTrade.fromMap(e));
+  }
+
+  Stream<WsKlineEvent> kline({@required String symbol, @required Interval interval}) {
+    final channel = subscribe('${symbol.toLowerCase()}@kline_${intervalToStr[interval]}');
+    return channel.stream.map<Map>(toMap).map<WsKlineEvent>((e) => WsKlineEvent.fromMap(e));
+  }
+
+  Stream<WsMiniTicker> miniTicker24h({@required String symbol}) {
+    final channel = subscribe('${symbol.toLowerCase()}@miniTicker');
+    return channel.stream.map<Map>(toMap).map<WsMiniTicker>((e) => WsMiniTicker.fromMap(e));
+  }
+
+  Stream<WsUserDataEvent> userDataStream({@required String listenKey}) {
+    final channel = subscribe(listenKey);
+    return channel.stream.map<Map>(toMap).map<WsUserDataEvent>((e) => WsUserDataEvent.fromMap(e));
   }
 }
